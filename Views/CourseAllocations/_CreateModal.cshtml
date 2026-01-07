@@ -1,0 +1,54 @@
+@model AttendanceManagementSystem.Models.CourseAllocation
+
+<form id="createAllocationForm" asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="form-group mb-3">
+        <label asp-for="CourseId" class="control-label"></label>
+        <select asp-for="CourseId" class="form-select" asp-items="ViewBag.CourseId">
+            <option value="">-- Select Course --</option>
+        </select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="TeacherId" class="control-label"></label>
+        <select asp-for="TeacherId" class="form-select" asp-items="ViewBag.TeacherId">
+            <option value="">-- Select Teacher --</option>
+        </select>
+        <span asp-validation-for="TeacherId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="BatchId" class="control-label"></label>
+        <select asp-for="BatchId" class="form-select" asp-items="ViewBag.BatchId">
+            <option value="">-- Select Batch --</option>
+        </select>
+        <span asp-validation-for="BatchId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="SectionId" class="control-label"></label>
+        <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionId">
+            <option value="">-- Select Section --</option>
+        </select>
+        <span asp-validation-for="SectionId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="SemesterId" class="control-label"></label>
+        <select asp-for="SemesterId" class="form-select" asp-items="ViewBag.SemesterId">
+            <option value="">-- Select Semester --</option>
+        </select>
+        <span asp-validation-for="SemesterId" class="text-danger"></span>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-success">Create Allocation</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

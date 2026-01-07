@@ -1,0 +1,135 @@
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-file-earmark-bar-graph me-2"></i>Reports</h2>
+            <p class="text-muted mb-0">Generate and export attendance reports</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-house"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Course Attendance Report -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-book fs-1 text-primary"></i>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Course Attendance Report</h5>
+                    <p class="card-text text-muted">
+                        View attendance statistics grouped by course, including section-wise breakdown and average attendance percentages.
+                    </p>
+                    <a asp-action="CourseAttendanceReport" class="btn btn-primary">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Generate Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Attendance Report -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-lines-fill fs-1 text-info"></i>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Student Attendance Report</h5>
+                    <p class="card-text text-muted">
+                        Search and view individual student attendance records, including present/absent counts and overall percentage.
+                    </p>
+                    <a asp-action="StudentAttendanceReport" class="btn btn-info text-white">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Generate Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Activity Report -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-badge fs-1 text-success"></i>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Teacher Activity Report</h5>
+                    <p class="card-text text-muted">
+                        View teacher assignments, student counts, and attendance marking activity across all courses.
+                    </p>
+                    <a asp-action="TeacherActivityReport" class="btn btn-success">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Generate Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Attendance Students -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-exclamation-triangle fs-1 text-danger"></i>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Low Attendance Students</h5>
+                    <p class="card-text text-muted">
+                        Identify students with attendance below the threshold and take necessary action.
+                    </p>
+                    <a asp-action="LowAttendanceStudents" class="btn btn-danger">
+                        <i class="bi bi-arrow-right-circle me-1"></i>View Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Monitoring -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-clipboard-data fs-1 text-warning"></i>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Attendance Monitoring</h5>
+                    <p class="card-text text-muted">
+                        Monitor and filter attendance records by course, batch, section, and date range.
+                    </p>
+                    <a asp-action="AttendanceMonitoring" class="btn btn-warning">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Monitor
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Export Section -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="bi bi-download me-2"></i>Quick Export</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-3">Export comprehensive reports in CSV format for further analysis.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-action="ExportTeacherReport" class="btn btn-outline-success">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>Export Teacher Report
+                </a>
+                <a asp-action="ExportStudentReport" class="btn btn-outline-info">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>Export All Students Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

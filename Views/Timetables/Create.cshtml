@@ -1,0 +1,64 @@
+﻿@model AttendanceManagementSystem.Models.TimetableEntry
+
+@{
+    ViewData["Title"] = "Add Class";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4>Add Timetable Entry</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="form-group mb-3">
+                            <label class="fw-bold">Course & Section</label>
+                            <select asp-for="CourseAllocationId" class="form-control" asp-items="ViewBag.CourseAllocationId">
+                                <option value="">-- Select Course --</option>
+                            </select>
+                            <span asp-validation-for="CourseAllocationId" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="DayOfWeek" class="fw-bold">Day</label>
+                                <select asp-for="DayOfWeek" class="form-control">
+                                    <option>Monday</option>
+                                    <option>Tuesday</option>
+                                    <option>Wednesday</option>
+                                    <option>Thursday</option>
+                                    <option>Friday</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Room" class="fw-bold">Room</label>
+                                <input asp-for="Room" class="form-control" placeholder="C-201" />
+                                <span asp-validation-for="Room" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="StartTime" class="fw-bold">Start Time</label>
+                                <input asp-for="StartTime" type="time" class="form-control" />
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="EndTime" class="fw-bold">End Time</label>
+                                <input asp-for="EndTime" type="time" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">Save to Schedule</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

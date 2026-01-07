@@ -1,0 +1,119 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Teacher Activity Report";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-person-badge"></i> Teacher Activity Report</h2>
+            <p class="text-muted mb-0">View teaching assignments and attendance marking activity</p>
+        </div>
+        <div>
+            <a asp-action="ExportTeacherReport" class="btn btn-success me-2">
+                <i class="bi bi-download"></i> Export CSV
+            </a>
+            <a asp-action="Reports" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left"></i> All Reports
+            </a>
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="bi bi-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No teachers found in the system.
+        </div>
+    }
+    else
+    {
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3>@Model.Count</h3>
+                        <small>Total Teachers</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3>@Model.Sum(t => (int)t.AssignedCourses)</h3>
+                        <small>Total Allocations</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3>@Model.Sum(t => (int)t.AttendanceSessionsMarked)</h3>
+                        <small>Attendance Sessions Marked</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Table -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Teacher Activity Summary</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Teacher Name</th>
+                                <th>Department</th>
+                                <th class="text-center">Assigned Courses</th>
+                                <th>Course Codes</th>
+                                <th class="text-center">Total Students</th>
+                                <th class="text-center">Sessions Marked</th>
+                                <th class="text-center">Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var teacher = item.Teacher as AttendanceManagementSystem.Models.Teacher;
+                                int sessions = item.AttendanceSessionsMarked;
+                                string activityClass = sessions > 10 ? "bg-success" : (sessions > 0 ? "bg-warning text-dark" : "bg-secondary");
+                                string activityText = sessions > 10 ? "Active" : (sessions > 0 ? "Low" : "Inactive");
+                                <tr>
+                                    <td><strong>@teacher?.Name</strong></td>
+                                    <td>@teacher?.Department</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">@item.AssignedCourses</span>
+                                    </td>
+                                    <td><small class="text-muted">@item.CourseNames</small></td>
+                                    <td class="text-center">@item.TotalStudents</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info fs-6">@sessions</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge @activityClass">@activityText</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-3">
+            <small class="text-muted">
+                <span class="badge bg-success me-2">&gt;10 sessions</span> Active
+                <span class="badge bg-warning text-dark me-2 ms-3">1-10 sessions</span> Low Activity
+                <span class="badge bg-secondary me-2 ms-3">0 sessions</span> Inactive
+            </small>
+        </div>
+    }
+</div>

@@ -1,0 +1,86 @@
+﻿@model AttendanceManagementSystem.Models.CourseAllocation
+
+@{
+    ViewData["Title"] = "Allocate Course to Teacher";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Allocate Course to Teacher</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="TeacherId" class="control-label">Select Teacher</label>
+                            <select asp-for="TeacherId" class="form-control" asp-items="ViewBag.TeacherId">
+                                <option value="">-- Select Teacher --</option>
+                            </select>
+                            <span asp-validation-for="TeacherId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CourseId" class="control-label">Select Course</label>
+                            <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseId">
+                                <option value="">-- Select Course --</option>
+                            </select>
+                            <span asp-validation-for="CourseId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="SemesterId" class="control-label">Select Semester</label>
+                            <select asp-for="SemesterId" class="form-control" asp-items="ViewBag.SemesterId">
+                                <option value="">-- Select Semester --</option>
+                            </select>
+                            <span asp-validation-for="SemesterId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="BatchId" class="control-label">Select Batch/Session</label>
+                            <select asp-for="BatchId" class="form-control" asp-items="ViewBag.BatchId">
+                                <option value="">-- Select Batch --</option>
+                            </select>
+                            <span asp-validation-for="BatchId" class="text-danger"></span>
+                            <small class="form-text text-muted">This determines which students can see and register for this course</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="SectionId" class="control-label">Select Section</label>
+                            <select asp-for="SectionId" class="form-control" asp-items="ViewBag.SectionId">
+                                <option value="">-- Select Section --</option>
+                            </select>
+                            <span asp-validation-for="SectionId" class="text-danger"></span>
+                            <small class="form-text text-muted">Each section can only be assigned to one teacher</small>
+                        </div>
+
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Note:</strong> The system will prevent duplicate assignments of the same course-section to multiple teachers.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4 text-end">
+                    <a asp-action="Index" class="btn btn-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-check-circle"></i> Allocate Course
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-link"><i class="bi bi-arrow-left"></i> Back to Course Allocations</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

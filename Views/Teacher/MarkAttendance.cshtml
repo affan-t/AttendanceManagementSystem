@@ -1,0 +1,147 @@
+﻿@model IEnumerable<AttendanceManagementSystem.Models.Student>
+
+@{
+    ViewData["Title"] = "Mark Attendance";
+    var allocation = ViewBag.Allocation as AttendanceManagementSystem.Models.CourseAllocation;
+    var attendanceAlreadyMarked = ViewBag.AttendanceAlreadyMarked as bool? ?? false;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-pen"></i> Mark Attendance</h2>
+            <p class="text-muted mb-0">
+                <strong>@allocation?.Course?.Name</strong> (@allocation?.Course?.Code) - 
+                Section @allocation?.Section?.Name | @allocation?.Batch?.Name
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (attendanceAlreadyMarked)
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Warning:</strong> Attendance for today has already been marked for this class.
+            You can edit it from the <a asp-action="AttendanceHistory" asp-route-id="@allocation?.Id" class="alert-link">Attendance History</a>.
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No students are enrolled in this course section yet.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Attendance Sheet</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="SaveAttendance" method="post">
+                    <input type="hidden" name="allocationId" value="@allocation?.Id" />
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Attendance Date</label>
+                            <input type="date" name="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                        </div>
+                        <div class="col-md-8 d-flex align-items-end">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-success" onclick="markAllPresent()">
+                                    <i class="bi bi-check-all"></i> Mark All Present
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" onclick="markAllAbsent()">
+                                    <i class="bi bi-x-circle"></i> Mark All Absent
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Roll No</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int counter = 1;
+                                }
+                                @foreach (var student in Model)
+                                {
+                                    <tr>
+                                        <td>@counter</td>
+                                        <td><code>@student.RollNo</code></td>
+                                        <td><strong>@student.Name</strong></td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <input type="radio" class="btn-check" 
+                                                       name="attendanceStatus[@student.Id]" 
+                                                       id="present_@student.Id" value="true" checked />
+                                                <label class="btn btn-outline-success" for="present_@student.Id">
+                                                    <i class="bi bi-check-lg"></i> Present
+                                                </label>
+
+                                                <input type="radio" class="btn-check" 
+                                                       name="attendanceStatus[@student.Id]" 
+                                                       id="absent_@student.Id" value="false" />
+                                                <label class="btn btn-outline-danger" for="absent_@student.Id">
+                                                    <i class="bi bi-x-lg"></i> Absent
+                                                </label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    counter++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Note:</strong> Please review the attendance before submitting. 
+                        You can edit attendance later from the Attendance History.
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg" 
+                                onclick="return confirm('Are you sure you want to save this attendance?')">
+                            <i class="bi bi-save"></i> Save Attendance
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function markAllPresent() {
+            document.querySelectorAll('input[value="true"]').forEach(radio => radio.checked = true);
+        }
+        function markAllAbsent() {
+            document.querySelectorAll('input[value="false"]').forEach(radio => radio.checked = true);
+        }
+    </script>
+}

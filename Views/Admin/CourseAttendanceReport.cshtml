@@ -1,0 +1,116 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Course Attendance Report";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-book"></i> Course Attendance Report</h2>
+            <p class="text-muted mb-0">Attendance statistics by course and section</p>
+        </div>
+        <div>
+            <a asp-action="Reports" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left"></i> All Reports
+            </a>
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="bi bi-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Course Selection -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Select Course</label>
+                    <select name="courseId" class="form-select">
+                        <option value="">-- Select a Course --</option>
+                        @foreach (var course in ViewBag.Courses as IEnumerable<AttendanceManagementSystem.Models.Course>)
+                        {
+                            <option value="@course.Id" selected="@(ViewBag.SelectedCourseId != null && (int)ViewBag.SelectedCourseId == course.Id)">
+                                @course.Code - @course.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Generate Report
+                    </button>
+                </div>
+                @if (ViewBag.SelectedCourseId != null)
+                {
+                    <div class="col-md-2">
+                        <a asp-action="ExportCourseReport" asp-route-courseId="@ViewBag.SelectedCourseId" class="btn btn-success">
+                            <i class="bi bi-download"></i> Export CSV
+                        </a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    @if (ViewBag.SelectedCourseId == null)
+    {
+        <div class="text-center p-5">
+            <i class="bi bi-hand-index fs-1 text-muted"></i>
+            <p class="text-muted mt-2">Select a course to view the attendance report.</p>
+        </div>
+    }
+    else if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No course allocations found for the selected course.
+        </div>
+    }
+    else
+    {
+        <!-- Report Table -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Course Sections & Attendance</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Teacher</th>
+                                <th>Batch</th>
+                                <th>Section</th>
+                                <th class="text-center">Enrolled Students</th>
+                                <th class="text-center">Total Classes</th>
+                                <th class="text-center">Total Present</th>
+                                <th class="text-center">Total Absent</th>
+                                <th class="text-center">Avg. Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var allocation = item.Allocation as AttendanceManagementSystem.Models.CourseAllocation;
+                                double avgAttendance = item.AverageAttendance;
+                                string badgeClass = avgAttendance >= 75 ? "bg-success" : (avgAttendance >= 60 ? "bg-warning text-dark" : "bg-danger");
+                                <tr>
+                                    <td>@allocation?.Teacher?.Name</td>
+                                    <td>@allocation?.Batch?.Name</td>
+                                    <td>@allocation?.Section?.Name</td>
+                                    <td class="text-center">@item.EnrolledStudents</td>
+                                    <td class="text-center">@item.TotalClasses</td>
+                                    <td class="text-center text-success">@item.TotalPresent</td>
+                                    <td class="text-center text-danger">@item.TotalAbsent</td>
+                                    <td class="text-center">
+                                        <span class="badge @badgeClass fs-6">@avgAttendance%</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

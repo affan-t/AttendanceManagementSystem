@@ -1,0 +1,154 @@
+@model IEnumerable<AttendanceManagementSystem.Models.Student>
+
+@{
+    ViewData["Title"] = "Mark Attendance";
+    var allocation = ViewBag.Allocation as AttendanceManagementSystem.Models.CourseAllocation;
+    var attendanceAlreadyMarked = ViewBag.AttendanceAlreadyMarked as bool? ?? false;
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title"><i class="bi bi-check2-square me-2"></i>Mark Attendance</h1>
+        <p class="page-subtitle mb-0">
+            <span class="badge badge-primary">@allocation?.Course?.Code</span>
+            @allocation?.Course?.Name - @allocation?.Batch?.Name / @allocation?.Section?.Name
+        </p>
+    </div>
+    <a href="@Url.Action("MarkAttendance")" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (attendanceAlreadyMarked)
+{
+    <div class="alert alert-warning">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+            <div>
+                <strong>Attendance Already Marked</strong>
+                <p class="mb-0 small">Attendance for today has already been recorded. You can edit it from the 
+                    <a href="@Url.Action("AttendanceHistory", new { id = allocation?.Id })" class="alert-link">Attendance History</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="empty-state py-5">
+                <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+                <h5 class="empty-state-title">No Students Enrolled</h5>
+                <p class="empty-state-text">No students are enrolled in this course section yet.</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Attendance Sheet</h6>
+            <span class="badge bg-secondary">@Model.Count() students</span>
+        </div>
+        <div class="card-body">
+            <form asp-action="SaveAttendance" method="post" id="attendanceForm">
+                <input type="hidden" name="allocationId" value="@allocation?.Id" />
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Attendance Date <span class="text-danger">*</span></label>
+                        <input type="date" name="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-md-8 d-flex align-items-end gap-2">
+                        <button type="button" class="btn btn-outline-success" onclick="markAllPresent()">
+                            <i class="bi bi-check-all me-1"></i>All Present
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="markAllAbsent()">
+                            <i class="bi bi-x-circle me-1"></i>All Absent
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>Roll No</th>
+                                <th>Student Name</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int counter = 1;}
+                            @foreach (var student in Model)
+                            {
+                                <tr>
+                                    <td class="text-muted">@counter</td>
+                                    <td><span class="badge badge-secondary">@student.RollNo</span></td>
+                                    <td class="fw-medium">@student.Name</td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <input type="radio" class="btn-check" 
+                                                   name="attendanceStatus[@student.Id]" 
+                                                   id="present_@student.Id" value="true" checked />
+                                            <label class="btn btn-outline-success btn-sm" for="present_@student.Id">
+                                                <i class="bi bi-check-lg me-1"></i>Present
+                                            </label>
+
+                                            <input type="radio" class="btn-check" 
+                                                   name="attendanceStatus[@student.Id]" 
+                                                   id="absent_@student.Id" value="false" />
+                                            <label class="btn btn-outline-danger btn-sm" for="absent_@student.Id">
+                                                <i class="bi bi-x-lg me-1"></i>Absent
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                counter++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a href="@Url.Action("MarkAttendance")" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success" id="submitBtn">
+                        <i class="bi bi-check-lg me-1"></i>Save Attendance
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function markAllPresent() {
+            document.querySelectorAll('input[value="true"]').forEach(radio => radio.checked = true);
+        }
+        function markAllAbsent() {
+            document.querySelectorAll('input[value="false"]').forEach(radio => radio.checked = true);
+        }
+        
+        document.getElementById('attendanceForm')?.addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to save this attendance?')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}

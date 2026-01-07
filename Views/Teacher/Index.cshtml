@@ -1,0 +1,248 @@
+﻿@model IEnumerable<AttendanceManagementSystem.Models.CourseAllocation>
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var teacher = ViewBag.Teacher as AttendanceManagementSystem.Models.Teacher;
+    var todaysClasses = ViewBag.TodaysClasses as List<AttendanceManagementSystem.Models.TimetableEntry>;
+    var todayAttendanceMarked = ViewBag.TodayAttendanceMarked as List<int> ?? new List<int>();
+    var lowAttendanceCount = ViewBag.LowAttendanceCount as int? ?? 0;
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle mb-0">Welcome back, @teacher?.Name</p>
+    </div>
+</div>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-card-value">@Model.Count()</div>
+                    <div class="stat-card-label">Assigned Courses</div>
+                </div>
+                <div class="stat-card-icon primary">
+                    <i class="bi bi-book"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-card-value">@(todaysClasses?.Count ?? 0)</div>
+                    <div class="stat-card-label">Today's Classes</div>
+                </div>
+                <div class="stat-card-icon info">
+                    <i class="bi bi-calendar-day"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-card-value text-success">@todayAttendanceMarked.Count</div>
+                    <div class="stat-card-label">Attendance Marked</div>
+                </div>
+                <div class="stat-card-icon success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-card-value text-danger">@lowAttendanceCount</div>
+                    <div class="stat-card-label">Low Attendance</div>
+                </div>
+                <div class="stat-card-icon danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Today's Schedule -->
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Today's Schedule</h6>
+                <span class="badge bg-primary">@DateTime.Now.DayOfWeek</span>
+            </div>
+            @if (todaysClasses != null && todaysClasses.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Course</th>
+                                <th>Section</th>
+                                <th>Room</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cls in todaysClasses)
+                            {
+                                var isMarked = todayAttendanceMarked.Contains(cls.CourseAllocationId);
+                                <tr>
+                                    <td>
+                                        <span class="fw-medium">@cls.StartTime.ToString(@"hh\:mm")</span>
+                                        <span class="text-muted">- @cls.EndTime.ToString(@"hh\:mm")</span>
+                                    </td>
+                                    <td class="fw-semibold">@cls.CourseAllocation?.Course?.Code</td>
+                                    <td>@cls.CourseAllocation?.Section?.Name</td>
+                                    <td class="text-muted">@cls.Room</td>
+                                    <td>
+                                        @if (isMarked)
+                                        {
+                                            <span class="badge badge-success"><i class="bi bi-check me-1"></i>Done</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning">Pending</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!isMarked)
+                                        {
+                                            <a href="@Url.Action("MarkAttendance", "Teacher", new { id = cls.CourseAllocationId })" class="btn btn-sm btn-success">
+                                                <i class="bi bi-pencil"></i> Mark
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@Url.Action("AttendanceHistory", "Teacher", new { id = cls.CourseAllocationId })" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="card-body">
+                    <div class="empty-state py-4">
+                        <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+                        <h6 class="empty-state-title">No Classes Today</h6>
+                        <p class="empty-state-text mb-0">Enjoy your day off!</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body d-flex flex-column gap-2">
+                <a href="@Url.Action("MarkAttendance", "Teacher")" class="btn btn-success w-100">
+                    <i class="bi bi-check2-square me-2"></i>Mark Attendance
+                </a>
+                <a href="@Url.Action("AttendanceHistory", "Teacher")" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-clock-history me-2"></i>View History
+                </a>
+                <a href="@Url.Action("ViewStudents", "Teacher")" class="btn btn-outline-info w-100">
+                    <i class="bi bi-people me-2"></i>My Students
+                </a>
+                <a href="@Url.Action("LowAttendanceStudents", "Teacher")" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Low Attendance
+                </a>
+                <a href="@Url.Action("AttendanceReport", "Teacher")" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-file-earmark-bar-graph me-2"></i>Generate Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assigned Courses -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-journal-bookmark me-2"></i>My Courses</h6>
+        <span class="badge bg-secondary">@Model.Count() courses</span>
+    </div>
+    <div class="card-body">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-journal-x"></i></div>
+                <h6 class="empty-state-title">No Courses Assigned</h6>
+                <p class="empty-state-text">Please contact the administrator.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var item in Model)
+                {
+                    var isMarkedToday = todayAttendanceMarked.Contains(item.Id);
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card h-100 border @(isMarkedToday ? "border-success" : "")">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">@item.Course.Code</h6>
+                                        <p class="text-muted small mb-0">@item.Course.Name</p>
+                                    </div>
+                                    @if (isMarkedToday)
+                                    {
+                                        <span class="badge badge-success"><i class="bi bi-check"></i></span>
+                                    }
+                                </div>
+                                <div class="small text-muted mb-3">
+                                    <div><i class="bi bi-calendar-range me-1"></i>@item.Batch.Name</div>
+                                    <div><i class="bi bi-grid me-1"></i>@item.Section.Name</div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="@Url.Action("MarkAttendance", "Teacher", new { id = item.Id })" class="btn btn-sm btn-success flex-fill">
+                                        <i class="bi bi-pencil"></i> Mark
+                                    </a>
+                                    <a href="@Url.Action("ViewStudents", "Teacher", new { id = item.Id })" class="btn btn-sm btn-outline-primary flex-fill">
+                                        <i class="bi bi-people"></i> Students
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

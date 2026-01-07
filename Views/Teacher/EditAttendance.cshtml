@@ -1,0 +1,120 @@
+@model IEnumerable<AttendanceManagementSystem.Models.Attendance>
+
+@{
+    ViewData["Title"] = "Edit Attendance";
+    var allocation = ViewBag.Allocation as AttendanceManagementSystem.Models.CourseAllocation;
+    var date = ViewBag.Date as DateTime? ?? DateTime.Today;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-pencil-square"></i> Edit Attendance</h2>
+            <p class="text-muted mb-0">
+                <strong>@allocation?.Course?.Name</strong> (@allocation?.Course?.Code) - 
+                @date.ToString("dddd, MMMM dd, yyyy")
+            </p>
+        </div>
+        <a asp-action="AttendanceHistory" asp-route-id="@allocation?.Id" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to History
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">Update Attendance Records</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="UpdateAttendance" method="post">
+                <input type="hidden" name="allocationId" value="@allocation?.Id" />
+                <input type="hidden" name="date" value="@date.ToString("yyyy-MM-dd")" />
+
+                <div class="mb-3">
+                    <button type="button" class="btn btn-outline-success btn-sm me-2" onclick="markAllPresent()">
+                        <i class="bi bi-check-all"></i> Mark All Present
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="markAllAbsent()">
+                        <i class="bi bi-x-circle"></i> Mark All Absent
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th class="text-center">Current Status</th>
+                                <th class="text-center">New Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int counter = 1;
+                            }
+                            @foreach (var record in Model.OrderBy(r => r.Student?.RollNo))
+                            {
+                                <tr>
+                                    <td>@counter</td>
+                                    <td><code>@record.Student?.RollNo</code></td>
+                                    <td><strong>@record.Student?.Name</strong></td>
+                                    <td class="text-center">
+                                        @if (record.IsPresent)
+                                        {
+                                            <span class="badge bg-success">Present</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Absent</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <input type="radio" class="btn-check attendance-radio" 
+                                                   name="attendanceStatus[@record.StudentId]" 
+                                                   id="present_@record.StudentId" value="true" 
+                                                   @(record.IsPresent ? "checked" : "") />
+                                            <label class="btn btn-outline-success btn-sm" for="present_@record.StudentId">
+                                                <i class="bi bi-check"></i> Present
+                                            </label>
+
+                                            <input type="radio" class="btn-check attendance-radio" 
+                                                   name="attendanceStatus[@record.StudentId]" 
+                                                   id="absent_@record.StudentId" value="false" 
+                                                   @(!record.IsPresent ? "checked" : "") />
+                                            <label class="btn btn-outline-danger btn-sm" for="absent_@record.StudentId">
+                                                <i class="bi bi-x"></i> Absent
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                counter++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Update Attendance
+                    </button>
+                    <a asp-action="AttendanceHistory" asp-route-id="@allocation?.Id" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function markAllPresent() {
+            document.querySelectorAll('input[value="true"]').forEach(radio => radio.checked = true);
+        }
+        function markAllAbsent() {
+            document.querySelectorAll('input[value="false"]').forEach(radio => radio.checked = true);
+        }
+    </script>
+}

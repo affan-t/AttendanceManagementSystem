@@ -1,0 +1,14 @@
+﻿@inject SignInManager<IdentityUser> SignInManager
+
+<ul class="list-group list-group-flush">
+    <li class="list-group-item">
+        <a class="d-flex align-items-center text-decoration-none @(ManageNavPages.IndexNavClass(ViewContext) == "active" ? "text-primary fw-semibold" : "text-dark")" asp-page="./Index">
+            <i class="bi bi-person me-2"></i> Profile
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a class="d-flex align-items-center text-decoration-none @(ManageNavPages.ChangePasswordNavClass(ViewContext) == "active" ? "text-primary fw-semibold" : "text-dark")" asp-page="./ChangePassword">
+            <i class="bi bi-key me-2"></i> Change Password
+        </a>
+    </li>
+</ul>

@@ -1,0 +1,366 @@
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var userEmail = user?.Email ?? "User";
+    var userName = userEmail.Contains("@") ? userEmail.Split('@')[0] : userEmail;
+    var userInitials = userName.Length >= 2 ? userName.Substring(0, 2).ToUpper() : userName.ToUpper();
+    var userRole = User.IsInRole("Admin") ? "Administrator" : User.IsInRole("Teacher") ? "Teacher" : "Student";
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower();
+}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Attendance Management System</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+    
+    <!-- Dark Mode Initial Script (prevents flash) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Sidebar Toggle Button -->
+            <button class="sidebar-toggle-btn" id="sidebarToggle" title="Toggle Sidebar">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            
+            <!-- Brand -->
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <span class="sidebar-brand-text">AMS</span>
+            </div>
+            
+            <!-- User Info -->
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">@userInitials</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">@userName</div>
+                    <div class="sidebar-user-role">@userRole</div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                @if (User.IsInRole("Admin"))
+                {
+                    <!-- Admin Navigation -->
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Main</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Admin")" class="nav-link @(currentController == "admin" && currentAction == "index" ? "active" : "")">
+                                <i class="bi bi-speedometer2"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Management</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Students")" class="nav-link @(currentController == "students" ? "active" : "")">
+                                <i class="bi bi-people"></i>
+                                <span>Students</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Teachers")" class="nav-link @(currentController == "teachers" ? "active" : "")">
+                                <i class="bi bi-person-badge"></i>
+                                <span>Teachers</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Courses")" class="nav-link @(currentController == "courses" ? "active" : "")">
+                                <i class="bi bi-book"></i>
+                                <span>Courses</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Batches")" class="nav-link @(currentController == "batches" ? "active" : "")">
+                                <i class="bi bi-calendar3"></i>
+                                <span>Batches</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Sections")" class="nav-link @(currentController == "sections" ? "active" : "")">
+                                <i class="bi bi-grid"></i>
+                                <span>Sections</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Semesters")" class="nav-link @(currentController == "semesters" ? "active" : "")">
+                                <i class="bi bi-calendar-range"></i>
+                                <span>Semesters</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "CourseAllocations")" class="nav-link @(currentController == "courseallocations" ? "active" : "")">
+                                <i class="bi bi-diagram-3"></i>
+                                <span>Course Allocations</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Attendance</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("AttendanceMonitoring", "Admin")" class="nav-link @(currentAction == "attendancemonitoring" ? "active" : "")">
+                                <i class="bi bi-clipboard-data"></i>
+                                <span>Monitoring</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("LowAttendanceStudents", "Admin")" class="nav-link @(currentAction == "lowattendancestudents" ? "active" : "")">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <span>Low Attendance</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Reports</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("CourseAttendanceReport", "Admin")" class="nav-link @(currentAction == "courseattendancereport" ? "active" : "")">
+                                <i class="bi bi-file-earmark-bar-graph"></i>
+                                <span>Course Report</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("StudentAttendanceReport", "Admin")" class="nav-link @(currentAction == "studentattendancereport" ? "active" : "")">
+                                <i class="bi bi-file-person"></i>
+                                <span>Student Report</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("TeacherActivityReport", "Admin")" class="nav-link @(currentAction == "teacheractivityreport" ? "active" : "")">
+                                <i class="bi bi-file-text"></i>
+                                <span>Teacher Report</span>
+                            </a>
+                        </div>
+                    </div>
+                }
+                else if (User.IsInRole("Teacher"))
+                {
+                    <!-- Teacher Navigation -->
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Main</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Teacher")" class="nav-link @(currentController == "teacher" && currentAction == "index" ? "active" : "")">
+                                <i class="bi bi-speedometer2"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Attendance</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("MarkAttendance", "Teacher")" class="nav-link @(currentAction == "markattendance" ? "active" : "")">
+                                <i class="bi bi-check2-square"></i>
+                                <span>Mark Attendance</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("AttendanceHistory", "Teacher")" class="nav-link @(currentAction == "attendancehistory" ? "active" : "")">
+                                <i class="bi bi-clock-history"></i>
+                                <span>History</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("LowAttendanceStudents", "Teacher")" class="nav-link @(currentAction == "lowattendancestudents" ? "active" : "")">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <span>Low Attendance</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Students</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("ViewStudents", "Teacher")" class="nav-link @(currentAction == "viewstudents" ? "active" : "")">
+                                <i class="bi bi-people"></i>
+                                <span>My Students</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Reports</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("AttendanceReport", "Teacher")" class="nav-link @(currentAction == "attendancereport" ? "active" : "")">
+                                <i class="bi bi-file-earmark-bar-graph"></i>
+                                <span>Attendance Report</span>
+                            </a>
+                        </div>
+                    </div>
+                }
+                else if (User.IsInRole("Student"))
+                {
+                    <!-- Student Navigation -->
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Main</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Index", "Student")" class="nav-link @(currentController == "student" && currentAction == "index" ? "active" : "")">
+                                <i class="bi bi-speedometer2"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Attendance</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("AttendanceSummary", "Student")" class="nav-link @(currentAction == "attendancesummary" ? "active" : "")">
+                                <i class="bi bi-bar-chart"></i>
+                                <span>My Attendance</span>
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("MyReport", "Student")" class="nav-link @(currentAction == "myreport" ? "active" : "")">
+                                <i class="bi bi-file-earmark-bar-graph"></i>
+                                <span>My Report</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <div class="nav-section-title"><span>Profile</span></div>
+                        <div class="nav-item">
+                            <a href="@Url.Action("Profile", "Student")" class="nav-link @(currentAction == "profile" ? "active" : "")">
+                                <i class="bi bi-person"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </div>
+                    </div>
+                }
+                
+                <!-- Settings (Common) -->
+                <div class="nav-section">
+                    <div class="nav-section-title"><span>Settings</span></div>
+                    <div class="nav-item">
+                        <a href="/Identity/Account/Manage" class="nav-link">
+                            <i class="bi bi-gear"></i>
+                            <span>Account Settings</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Footer with Theme Toggle and Logout -->
+            <div class="sidebar-footer">
+                <!-- Dark Mode Toggle Button -->
+                <button class="nav-link theme-toggle-btn w-100 text-start border-0 bg-transparent mb-2" id="sidebarDarkModeToggle" title="Toggle Dark Mode">
+                    <i class="bi bi-moon-fill dark-icon"></i>
+                    <i class="bi bi-sun-fill light-icon"></i>
+                    <span class="theme-text dark-text">Dark Mode</span>
+                    <span class="theme-text light-text">Light Mode</span>
+                </button>
+                
+                <!-- Logout Button -->
+                <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
+                    <button type="submit" class="nav-link logout-btn w-100 text-start border-0 bg-transparent">
+                        <i class="bi bi-box-arrow-left"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="top-header-left">
+                    <button class="header-icon-btn mobile-menu-toggle" id="mobileMenuToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <nav class="breadcrumb-nav d-none d-sm-flex">
+                        <a href="@Url.Action("Index", User.IsInRole("Admin") ? "Admin" : User.IsInRole("Teacher") ? "Teacher" : "Student")">
+                            <i class="bi bi-house"></i>
+                        </a>
+                        <i class="bi bi-chevron-right"></i>
+                        <span>@ViewData["Title"]</span>
+                    </nav>
+                </div>
+                <div class="top-header-right">
+                    <span class="text-muted d-none d-lg-inline me-2">@DateTime.Now.ToString("dddd, MMMM d, yyyy")</span>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <button class="header-icon-btn" id="darkModeToggle" title="Toggle Dark Mode">
+                        <i class="bi bi-moon-fill dark-icon"></i>
+                        <i class="bi bi-sun-fill light-icon"></i>
+                    </button>
+                    
+                    <div class="dropdown">
+                        <button class="header-icon-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><span class="dropdown-item-text fw-semibold">@userName</span></li>
+                            <li><span class="dropdown-item-text text-muted small">@userRole</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/Identity/Account/Manage"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item" href="/Identity/Account/Manage/ChangePassword"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-left me-2"></i>Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <div class="page-content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- App JS -->
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

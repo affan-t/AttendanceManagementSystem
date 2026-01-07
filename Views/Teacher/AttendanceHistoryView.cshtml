@@ -1,0 +1,195 @@
+@model IEnumerable<AttendanceManagementSystem.Models.Attendance>
+
+@{
+    ViewData["Title"] = "Attendance History";
+    var allocation = ViewBag.Allocation as AttendanceManagementSystem.Models.CourseAllocation;
+    var groupedAttendance = ViewBag.GroupedAttendance as Dictionary<DateTime, List<AttendanceManagementSystem.Models.Attendance>>;
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title"><i class="bi bi-clock-history me-2"></i>Attendance History</h1>
+        <p class="page-subtitle mb-0">
+            <span class="badge badge-primary">@allocation?.Course?.Code</span>
+            @allocation?.Course?.Name - @allocation?.Batch?.Name / @allocation?.Section?.Name
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="@Url.Action("AttendanceReport", new { id = allocation?.Id })" class="btn btn-primary">
+            <i class="bi bi-file-earmark-bar-graph me-1"></i>View Report
+        </a>
+        <a href="@Url.Action("MarkAttendance", new { id = allocation?.Id })" class="btn btn-success">
+            <i class="bi bi-plus-lg me-1"></i>Mark New
+        </a>
+        <a href="@Url.Action("AttendanceHistory")" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (groupedAttendance == null || !groupedAttendance.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="empty-state py-5">
+                <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+                <h5 class="empty-state-title">No Attendance Records</h5>
+                <p class="empty-state-text">No attendance has been recorded for this course yet.</p>
+                <a href="@Url.Action("MarkAttendance", new { id = allocation?.Id })" class="btn btn-success">
+                    <i class="bi bi-plus-lg me-1"></i>Mark First Attendance
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    var avgAttendance = Model.Any() ? Math.Round((double)Model.Count(a => a.IsPresent) / Model.Count() * 100, 1) : 0;
+    
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-card-value">@groupedAttendance.Count</div>
+                        <div class="stat-card-label">Sessions Conducted</div>
+                    </div>
+                    <div class="stat-card-icon primary">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-card-value text-success">@Model.Count(a => a.IsPresent)</div>
+                        <div class="stat-card-label">Total Present</div>
+                    </div>
+                    <div class="stat-card-icon success">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-card-value text-danger">@Model.Count(a => !a.IsPresent)</div>
+                        <div class="stat-card-label">Total Absent</div>
+                    </div>
+                    <div class="stat-card-icon danger">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-card-value text-info">@avgAttendance%</div>
+                        <div class="stat-card-label">Average Attendance</div>
+                    </div>
+                    <div class="stat-card-icon info">
+                        <i class="bi bi-pie-chart"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance by Date -->
+    <div class="card">
+        <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>Attendance Records</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="accordion accordion-flush" id="attendanceAccordion">
+                @{
+                    int index = 0;
+                    foreach (var dateGroup in groupedAttendance.OrderByDescending(g => g.Key))
+                    {
+                        var present = dateGroup.Value.Count(a => a.IsPresent);
+                        var absent = dateGroup.Value.Count(a => !a.IsPresent);
+                        var percentage = dateGroup.Value.Any() ? Math.Round((double)present / dateGroup.Value.Count * 100, 1) : 0;
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button @(index > 0 ? "collapsed" : "")" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#collapse@(index)">
+                                    <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                        <span class="fw-medium">@dateGroup.Key.ToString("dddd, MMMM dd, yyyy")</span>
+                                        <span class="d-flex gap-1">
+                                            <span class="badge badge-success">@present P</span>
+                                            <span class="badge badge-danger">@absent A</span>
+                                            <span class="badge badge-secondary">@percentage%</span>
+                                        </span>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapse@(index)" class="accordion-collapse collapse @(index == 0 ? "show" : "")">
+                                <div class="accordion-body">
+                                    <div class="d-flex justify-content-end mb-3">
+                                        <a href="@Url.Action("EditAttendance", new { id = allocation?.Id, date = dateGroup.Key.ToString("yyyy-MM-dd") })" 
+                                           class="btn btn-sm btn-outline-warning">
+                                            <i class="bi bi-pencil me-1"></i>Edit Attendance
+                                        </a>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Roll No</th>
+                                                    <th>Student Name</th>
+                                                    <th class="text-center">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{
+                                                    int rowCounter = 1;
+                                                    foreach (var record in dateGroup.Value.OrderBy(r => r.Student?.RollNo))
+                                                    {
+                                                        <tr>
+                                                            <td class="text-muted">@rowCounter</td>
+                                                            <td><span class="badge badge-secondary">@record.Student?.RollNo</span></td>
+                                                            <td>@record.Student?.Name</td>
+                                                            <td class="text-center">
+                                                                @if (record.IsPresent)
+                                                                {
+                                                                    <span class="badge badge-success">Present</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge badge-danger">Absent</span>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                        rowCounter++;
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        index++;
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}

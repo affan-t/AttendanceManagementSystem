@@ -1,0 +1,130 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Student Attendance Report";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-person-lines-fill"></i> Student Attendance Report</h2>
+            <p class="text-muted mb-0">View attendance statistics for individual students</p>
+        </div>
+        <div>
+            <a asp-action="Reports" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left"></i> All Reports
+            </a>
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="bi bi-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Search by Name or Roll Number</label>
+                    <input type="text" name="searchTerm" class="form-control" 
+                           placeholder="Enter name or roll number..." 
+                           value="@ViewBag.SearchTerm" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+                {
+                    <div class="col-md-2">
+                        <a asp-action="ExportStudentReport" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-success">
+                            <i class="bi bi-download"></i> Export CSV
+                        </a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center p-5">
+            <i class="bi bi-search fs-1 text-muted"></i>
+            <p class="text-muted mt-2">
+                @if (string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+                {
+                    <text>Enter a search term to find students.</text>
+                }
+                else
+                {
+                    <text>No students found matching "<strong>@ViewBag.SearchTerm</strong>".</text>
+                }
+            </p>
+        </div>
+    }
+    else
+    {
+        <!-- Report Table -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Student Attendance Summary</h5>
+                <span class="badge bg-light text-dark">@Model.Count students found</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Batch</th>
+                                <th>Department</th>
+                                <th class="text-center">Enrolled Courses</th>
+                                <th class="text-center">Total Classes</th>
+                                <th class="text-center">Present</th>
+                                <th class="text-center">Absent</th>
+                                <th class="text-center">Attendance %</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var student = item.Student as AttendanceManagementSystem.Models.Student;
+                                double percentage = item.Percentage;
+                                string statusClass = percentage >= 75 ? "bg-success" : (percentage >= 60 ? "bg-warning text-dark" : "bg-danger");
+                                string statusText = percentage >= 75 ? "Good" : (percentage >= 60 ? "Warning" : "Critical");
+                                <tr>
+                                    <td><code>@student?.RollNo</code></td>
+                                    <td><strong>@student?.Name</strong></td>
+                                    <td>@student?.Batch?.Name</td>
+                                    <td>@student?.Department</td>
+                                    <td class="text-center">@item.EnrolledCourses</td>
+                                    <td class="text-center">@item.TotalClasses</td>
+                                    <td class="text-center text-success fw-bold">@item.PresentCount</td>
+                                    <td class="text-center text-danger fw-bold">@item.AbsentCount</td>
+                                    <td class="text-center">
+                                        <span class="badge @statusClass fs-6">@percentage%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge @statusClass">@statusText</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-3">
+            <small class="text-muted">
+                <span class="badge bg-success me-2">?75%</span> Good Standing
+                <span class="badge bg-warning text-dark me-2 ms-3">60-74%</span> Warning
+                <span class="badge bg-danger me-2 ms-3">&lt;60%</span> Critical
+            </small>
+        </div>
+    }
+</div>

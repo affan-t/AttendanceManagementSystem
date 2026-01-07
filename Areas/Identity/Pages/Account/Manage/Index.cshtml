@@ -1,0 +1,49 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<h4 class="mb-4"><i class="bi bi-person me-2"></i>Profile Information</h4>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3 pb-3 border-bottom">
+            <div class="col-sm-3">
+                <span class="text-muted">Email</span>
+            </div>
+            <div class="col-sm-9">
+                <span class="fw-semibold">@Model.Username</span>
+                <span class="badge bg-success ms-2"><i class="bi bi-check-circle me-1"></i>Verified</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <span class="text-muted">Phone Number</span>
+            </div>
+            <div class="col-sm-9">
+                @if (!string.IsNullOrEmpty(Model.Input.PhoneNumber))
+                {
+                    <span>@Model.Input.PhoneNumber</span>
+                }
+                else
+                {
+                    <span class="text-muted fst-italic">Not provided</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-page="./ChangePassword" class="btn btn-primary">
+        <i class="bi bi-key me-1"></i>Change Password
+    </a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,185 @@
+﻿@model IEnumerable<AttendanceManagementSystem.Models.Enrollment>
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var student = ViewBag.Student as AttendanceManagementSystem.Models.Student;
+    var totalClasses = ViewBag.TotalClasses as int? ?? 0;
+    var presentCount = ViewBag.PresentCount as int? ?? 0;
+    var absentCount = ViewBag.AbsentCount as int? ?? 0;
+    var overallPercentage = ViewBag.OverallPercentage as double? ?? 0;
+    var courseAttendance = ViewBag.CourseAttendance as Dictionary<int, (int Total, int Present, double Percentage)>;
+    var lowAttendanceCourses = ViewBag.LowAttendanceCourses as int? ?? 0;
+    string statusColor = overallPercentage >= 75 ? "success" : (overallPercentage >= 60 ? "warning" : "danger");
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle mb-0">Welcome back, @student?.Name</p>
+    </div>
+</div>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Warning Alert -->
+@if (overallPercentage < 75 && totalClasses > 0)
+{
+    <div class="alert alert-danger mb-4">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+            <div>
+                <strong>Attendance Warning!</strong> Your overall attendance is below 75%. Please attend classes regularly.
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-card-value text-@statusColor">@overallPercentage%</div>
+                    <div class="stat-card-label">Overall Attendance</div>
+                </div>
+                <div class="stat-card-icon @statusColor">
+                    <i class="bi bi-pie-chart"></i>
+                </div>
+            </div>
+            @if (totalClasses > 0)
+            {
+                <div class="progress mt-3" style="height: 4px;">
+                    <div class="progress-bar bg-@statusColor" style="width: @overallPercentage%"></div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-card-value">@totalClasses</div>
+                    <div class="stat-card-label">Total Classes</div>
+                </div>
+                <div class="stat-card-icon primary">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-card-value text-success">@presentCount</div>
+                    <div class="stat-card-label">Present</div>
+                </div>
+                <div class="stat-card-icon success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-card-value text-danger">@absentCount</div>
+                    <div class="stat-card-label">Absent</div>
+                </div>
+                <div class="stat-card-icon danger">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enrolled Courses -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-journal-bookmark me-2"></i>My Courses</h6>
+        <a href="@Url.Action("AttendanceSummary", "Student")" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-bar-chart me-1"></i>View Summary
+        </a>
+    </div>
+    <div class="card-body">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-journal-x"></i></div>
+                <h6 class="empty-state-title">No Courses Found</h6>
+                <p class="empty-state-text">You are not enrolled in any courses yet.</p>
+                <a href="@Url.Action("RegisterCourse", "Student")" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Register for Course
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var item in Model)
+                {
+                    var attendance = courseAttendance?.ContainsKey(item.CourseAllocationId) == true 
+                        ? courseAttendance[item.CourseAllocationId] 
+                        : (0, 0, 0.0);
+                    int attTotal = attendance.Item1;
+                    double percentage = attendance.Item3;
+                    string cardStatus = percentage >= 75 ? "success" : (percentage >= 60 ? "warning" : "danger");
+                    
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card h-100 border">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">@item.CourseAllocation.Course.Code</h6>
+                                        <p class="text-muted small mb-0">@item.CourseAllocation.Course.Name</p>
+                                    </div>
+                                    @if (attTotal > 0)
+                                    {
+                                        <span class="badge badge-@cardStatus">@percentage%</span>
+                                    }
+                                </div>
+                                <div class="small text-muted mb-3">
+                                    <div><i class="bi bi-person-badge me-1"></i>@item.CourseAllocation.Teacher.Name</div>
+                                    <div><i class="bi bi-grid me-1"></i>@item.CourseAllocation.Section.Name</div>
+                                </div>
+                                @if (attTotal > 0)
+                                {
+                                    <div class="progress mb-2" style="height: 4px;">
+                                        <div class="progress-bar bg-@cardStatus" style="width: @percentage%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span><i class="bi bi-check-circle text-success"></i> @attendance.Item2</span>
+                                        <span><i class="bi bi-x-circle text-danger"></i> @(attTotal - attendance.Item2)</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="@Url.Action("ViewAttendance", "Student", new { id = item.CourseAllocationId })" class="btn btn-sm btn-outline-primary w-100">
+                                    <i class="bi bi-eye me-1"></i>View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

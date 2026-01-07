@@ -1,0 +1,29 @@
+﻿@model AttendanceManagementSystem.ViewModels.ScheduleUploadViewModel
+
+@{
+    ViewData["Title"] = "Upload Schedule";
+}
+
+<div class="container mt-5">
+    <h2>Upload Course Schedule</h2>
+    <p class="text-muted">Upload an Excel file (.xlsx) to bulk assign courses to teachers.</p>
+
+    <div class="alert alert-info">
+        <strong>Format Required:</strong><br />
+        Col A: Teacher Email | Col B: Course Code | Col C: Batch Name | Col D: Section Name | Col E: Semester Name
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Upload" enctype="multipart/form-data" method="post">
+                <div class="form-group mb-3">
+                    <label asp-for="File" class="control-label"></label>
+                    <input asp-for="File" type="file" class="form-control" accept=".xlsx" />
+                    <span asp-validation-for="File" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-success">Upload & Process</button>
+                <a asp-action="Index" class="btn btn-secondary">Back</a>
+            </form>
+        </div>
+    </div>
+</div>

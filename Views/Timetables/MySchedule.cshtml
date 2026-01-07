@@ -1,0 +1,156 @@
+@model IEnumerable<AttendanceManagementSystem.Models.TimetableEntry>
+
+@{
+    ViewData["Title"] = "My Schedule";
+    var userType = ViewData["UserType"] as string;
+    var daysOfWeek = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h2>
+            <i class="bi bi-calendar-week"></i> My Weekly Schedule
+        </h2>
+        <span class="badge bg-primary fs-6">@userType</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle-fill flex-shrink-0 me-2"></i>
+            <div>
+                <strong>No schedule available!</strong> 
+                @if (userType == "Student")
+                {
+                    <text>You don't have any classes scheduled yet. Please check back later or contact your administrator.</text>
+                }
+                else
+                {
+                    <text>You haven't been assigned any classes yet. Please contact the administrator.</text>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Day</th>
+                        <th>Time</th>
+                        <th>Course</th>
+                        <th>Room</th>
+                        @if (userType == "Student")
+                        {
+                            <th>Teacher</th>
+                        }
+                        else
+                        {
+                            <th>Section</th>
+                        }
+                        <th>Details</th>
+                        @if (userType == "Teacher")
+                        {
+                            <th>Actions</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var day in daysOfWeek)
+                    {
+                        var dayEntries = Model.Where(t => t.DayOfWeek == day).OrderBy(t => t.StartTime).ToList();
+                        
+                        @if (dayEntries.Any())
+                        {
+                            var isFirstRow = true;
+                            foreach (var item in dayEntries)
+                            {
+                                <tr>
+                                    @if (isFirstRow)
+                                    {
+                                        <td rowspan="@dayEntries.Count" class="align-middle fw-bold bg-light">
+                                            @day
+                                        </td>
+                                        isFirstRow = false;
+                                    }
+                                    <td>
+                                        <span class="badge bg-success">@item.StartTime.ToString(@"hh\:mm")</span>
+                                        <span class="mx-1">-</span>
+                                        <span class="badge bg-danger">@item.EndTime.ToString(@"hh\:mm")</span>
+                                    </td>
+                                    <td>
+                                        <strong>@item.CourseAllocation.Course.Name</strong><br />
+                                        <small class="text-muted">@item.CourseAllocation.Course.Code</small>
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-door-open"></i> @item.Room
+                                    </td>
+                                    @if (userType == "Student")
+                                    {
+                                        <td>@item.CourseAllocation.Teacher.Name</td>
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            @item.CourseAllocation.Section.Name<br />
+                                            <small class="text-muted">@item.CourseAllocation.Batch.Name</small>
+                                        </td>
+                                    }
+                                    <td>
+                                        <small>
+                                            <strong>Semester:</strong> @item.CourseAllocation.Semester.Name
+                                        </small>
+                                    </td>
+                                    @if (userType == "Teacher")
+                                    {
+                                        <td>
+                                            <a asp-controller="Teacher" asp-action="MarkAttendance" asp-route-id="@item.CourseAllocationId" class="btn btn-sm btn-success">
+                                                <i class="bi bi-pen"></i> Mark Attendance
+                                            </a>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            <h5>Summary</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Total Classes per Week
+                    <span class="badge bg-primary rounded-pill">@Model.Count()</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Unique Courses
+                    <span class="badge bg-success rounded-pill">@Model.Select(t => t.CourseAllocationId).Distinct().Count()</span>
+                </li>
+            </ul>
+        </div>
+    }
+
+    <div class="mt-4">
+        @if (User.IsInRole("Student"))
+        {
+            <a asp-controller="Student" asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        }
+        else if (User.IsInRole("Teacher"))
+        {
+            <a asp-controller="Teacher" asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        }
+        else
+        {
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to All Schedules
+            </a>
+        }
+    </div>
+</div>

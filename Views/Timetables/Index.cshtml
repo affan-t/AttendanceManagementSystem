@@ -1,0 +1,45 @@
+﻿@model IEnumerable<AttendanceManagementSystem.Models.TimetableEntry>
+
+@{
+    ViewData["Title"] = "Class Timetable";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Weekly Timetable</h2>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary">+ Add Class Slot</a>
+        }
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-bordered table-striped text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Day</th>
+                        <th>Time</th>
+                        <th>Course</th>
+                        <th>Section</th>
+                        <th>Teacher</th>
+                        <th>Room</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@item.DayOfWeek</td>
+                            <td>@item.StartTime.ToString(@"hh\:mm") - @item.EndTime.ToString(@"hh\:mm")</td>
+                            <td class="fw-bold">@item.CourseAllocation?.Course?.Name</td>
+                            <td><span class="badge bg-info text-dark">@item.CourseAllocation?.Section?.Name</span></td>
+                            <td>@item.CourseAllocation?.Teacher?.Name</td>
+                            <td class="fw-bold text-danger">@item.Room</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

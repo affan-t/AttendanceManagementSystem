@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "/Views/Shared/_SidebarLayout.cshtml";
+    ViewData["Title"] = "Account Settings";
+}
+
+<div class="page-header mb-4">
+    <h1 class="page-title"><i class="bi bi-gear me-2"></i>Account Settings</h1>
+    <p class="page-subtitle">Manage your account settings and security</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body p-0">
+                <partial name="_ManageNav" />
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-9">
+        <div class="card">
+            <div class="card-body">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

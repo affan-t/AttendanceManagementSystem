@@ -1,0 +1,72 @@
+@model IEnumerable<AttendanceManagementSystem.Models.CourseAllocation>
+
+@{
+    ViewData["Title"] = ViewBag.ActionTitle;
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title"><i class="@ViewBag.ActionIcon me-2"></i>@ViewBag.ActionTitle</h1>
+        <p class="page-subtitle mb-0">@ViewBag.ActionDescription</p>
+    </div>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="empty-state py-5">
+                <div class="empty-state-icon"><i class="bi bi-journal-x"></i></div>
+                <h5 class="empty-state-title">No Courses Assigned</h5>
+                <p class="empty-state-text">You don't have any courses assigned yet. Please contact the administrator.</p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 course-select-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <span class="badge badge-primary mb-2">@item.Course.Code</span>
+                                <h5 class="fw-bold mb-1">@item.Course.Name</h5>
+                            </div>
+                        </div>
+                        <div class="small text-muted mb-3">
+                            <div class="mb-1"><i class="bi bi-calendar-range me-2"></i>@item.Batch.Name</div>
+                            <div class="mb-1"><i class="bi bi-grid me-2"></i>@item.Section.Name</div>
+                            <div><i class="bi bi-calendar3 me-2"></i>@item.Semester.Name</div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pt-0">
+                        <a href="@Url.Action((string)ViewBag.ActionName, new { id = item.Id })" class="btn @ViewBag.ActionBtnClass w-100">
+                            <i class="@ViewBag.ActionIcon me-2"></i>Select
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Styles {
+    <style>
+        .course-select-card {
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+        .course-select-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+}

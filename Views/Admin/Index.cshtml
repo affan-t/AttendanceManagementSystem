@@ -1,0 +1,242 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle mb-0">Welcome back! Here's what's happening today.</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <a href="@Url.Action("Index", "Students")" class="text-decoration-none">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-card-value">@ViewBag.TotalStudents</div>
+                        <div class="stat-card-label">Students</div>
+                    </div>
+                    <div class="stat-card-icon primary">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <a href="@Url.Action("Index", "Teachers")" class="text-decoration-none">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-card-value">@ViewBag.TotalTeachers</div>
+                        <div class="stat-card-label">Teachers</div>
+                    </div>
+                    <div class="stat-card-icon success">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <a href="@Url.Action("Index", "Courses")" class="text-decoration-none">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-card-value">@ViewBag.TotalCourses</div>
+                        <div class="stat-card-label">Courses</div>
+                    </div>
+                    <div class="stat-card-icon info">
+                        <i class="bi bi-book"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <a href="@Url.Action("LowAttendanceStudents", "Admin")" class="text-decoration-none">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-card-value text-danger">@ViewBag.LowAttendanceCount</div>
+                        <div class="stat-card-label">Low Attendance</div>
+                    </div>
+                    <div class="stat-card-icon danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Today's Attendance -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Today's Attendance</h6>
+                <span class="badge bg-primary">@DateTime.Now.ToString("MMM dd, yyyy")</span>
+            </div>
+            <div class="card-body">
+                <div class="row text-center g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded bg-light">
+                            <div class="fs-2 fw-bold text-primary">@ViewBag.TodayTotal</div>
+                            <div class="text-muted small">Total Records</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background: rgba(16, 185, 129, 0.1);">
+                            <div class="fs-2 fw-bold text-success">@ViewBag.TodayPresent</div>
+                            <div class="text-muted small">Present</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background: rgba(239, 68, 68, 0.1);">
+                            <div class="fs-2 fw-bold text-danger">@ViewBag.TodayAbsent</div>
+                            <div class="text-muted small">Absent</div>
+                        </div>
+                    </div>
+                </div>
+                @if (ViewBag.TodayTotal > 0)
+                {
+                    var presentPercent = (double)ViewBag.TodayPresent / ViewBag.TodayTotal * 100;
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Attendance Rate</span>
+                            <span class="fw-semibold">@Math.Round(presentPercent, 1)%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: @presentPercent%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body d-flex flex-column gap-2">
+                <a href="@Url.Action("Create", "Students")" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-person-plus me-2"></i>Add Student
+                </a>
+                <a href="@Url.Action("Create", "Teachers")" class="btn btn-outline-success w-100">
+                    <i class="bi bi-person-plus me-2"></i>Add Teacher
+                </a>
+                <a href="@Url.Action("Create", "CourseAllocations")" class="btn btn-outline-info w-100">
+                    <i class="bi bi-diagram-3 me-2"></i>Allocate Course
+                </a>
+                <a href="@Url.Action("AttendanceMonitoring", "Admin")" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-clipboard-data me-2"></i>View Attendance
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity & Reports -->
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Attendance</h6>
+                <a href="@Url.Action("AttendanceMonitoring", "Admin")" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var recentAttendance = ViewBag.RecentAttendance as List<AttendanceManagementSystem.Models.Attendance>;
+                        }
+                        @if (recentAttendance != null && recentAttendance.Any())
+                        {
+                            @foreach (var item in recentAttendance.Take(5))
+                            {
+                                <tr>
+                                    <td class="fw-medium">@item.Student?.Name</td>
+                                    <td><span class="text-muted">@item.CourseAllocation?.Course?.Code</span></td>
+                                    <td>
+                                        @if (item.IsPresent)
+                                        {
+                                            <span class="badge badge-success">Present</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger">Absent</span>
+                                        }
+                                    </td>
+                                    <td class="text-muted">@item.AttendanceDate.ToString("MMM dd")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">No recent attendance records</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-file-earmark-bar-graph me-2"></i>Reports</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="@Url.Action("CourseAttendanceReport", "Admin")" class="card text-decoration-none h-100 border-0 bg-light">
+                            <div class="card-body text-center py-4">
+                                <i class="bi bi-book fs-3 text-primary mb-2 d-block"></i>
+                                <span class="text-dark fw-medium">Course Report</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="@Url.Action("StudentAttendanceReport", "Admin")" class="card text-decoration-none h-100 border-0 bg-light">
+                            <div class="card-body text-center py-4">
+                                <i class="bi bi-people fs-3 text-success mb-2 d-block"></i>
+                                <span class="text-dark fw-medium">Student Report</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="@Url.Action("TeacherActivityReport", "Admin")" class="card text-decoration-none h-100 border-0 bg-light">
+                            <div class="card-body text-center py-4">
+                                <i class="bi bi-person-badge fs-3 text-info mb-2 d-block"></i>
+                                <span class="text-dark fw-medium">Teacher Report</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="@Url.Action("LowAttendanceStudents", "Admin")" class="card text-decoration-none h-100 border-0 bg-light">
+                            <div class="card-body text-center py-4">
+                                <i class="bi bi-exclamation-triangle fs-3 text-danger mb-2 d-block"></i>
+                                <span class="text-dark fw-medium">Low Attendance</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

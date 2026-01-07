@@ -1,0 +1,77 @@
+﻿@model AttendanceManagementSystem.Models.CourseAllocation
+
+@{
+    ViewData["Title"] = "Edit Course Allocation";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">Edit Course Allocation</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="TeacherId" class="control-label">Select Teacher</label>
+                            <select asp-for="TeacherId" class="form-control" asp-items="ViewBag.TeacherId"></select>
+                            <span asp-validation-for="TeacherId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CourseId" class="control-label">Select Course</label>
+                            <select asp-for="CourseId" class="form-control" asp-items="ViewBag.CourseId"></select>
+                            <span asp-validation-for="CourseId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="SemesterId" class="control-label">Select Semester</label>
+                            <select asp-for="SemesterId" class="form-control" asp-items="ViewBag.SemesterId"></select>
+                            <span asp-validation-for="SemesterId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="BatchId" class="control-label">Select Batch/Session</label>
+                            <select asp-for="BatchId" class="form-control" asp-items="ViewBag.BatchId"></select>
+                            <span asp-validation-for="BatchId" class="text-danger"></span>
+                            <small class="form-text text-muted">This determines which students can see and register for this course</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="SectionId" class="control-label">Select Section</label>
+                            <select asp-for="SectionId" class="form-control" asp-items="ViewBag.SectionId"></select>
+                            <span asp-validation-for="SectionId" class="text-danger"></span>
+                            <small class="form-text text-muted">Each section can only be assigned to one teacher</small>
+                        </div>
+
+                        <div class="alert alert-warning mt-3">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> Changing this allocation may affect existing enrollments and attendance records.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4 text-end">
+                    <a asp-action="Index" class="btn btn-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-warning px-4">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-link"><i class="bi bi-arrow-left"></i> Back to Course Allocations</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,36 @@
+@model IEnumerable<AttendanceManagementSystem.Models.Batch>
+
+@if (!Model.Any())
+{
+    <tr id="emptyRow">
+        <td colspan="3">
+            <div class="empty-state py-4">
+                <div class="empty-state-icon"><i class="bi bi-calendar3"></i></div>
+                <h6 class="empty-state-title">No Batches Found</h6>
+                <p class="empty-state-text mb-0">Get started by adding your first batch.</p>
+            </div>
+        </td>
+    </tr>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        <tr data-id="@item.Id">
+            <td class="fw-medium">@item.Name</td>
+            <td><span class="badge badge-primary">@item.Year</span></td>
+            <td>
+                <div class="table-actions">
+                    <button type="button" class="btn btn-sm btn-outline-primary btn-edit" 
+                            data-id="@item.Id" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete" 
+                            data-id="@item.Id" data-name="@item.Name" title="Delete">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    }
+}
